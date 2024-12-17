@@ -461,7 +461,10 @@ function draw() {
     winner.html(timer);
     instructions.html("Capturing in " + timer + " seconds...");
     countdown();
+    console.log('playing')
   } else if (acc_dict[rock_button.id()] == 100 && acc_dict[paper_button.id()] == 100 && acc_dict[scissors_button.id()] == 100) {
+    instructions.html('Click Play and hold up a move!');
+  } else {
     instructions.html('Click Play and hold up a move!');
   }
 }
