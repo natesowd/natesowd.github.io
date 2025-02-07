@@ -19,7 +19,7 @@
 # in the templates via {{ site.myvariable }}.
 
 title: Portfolio
-email: natesowder2023@u.northwestern.edu
+email: nwsowder@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Nathan Sowder's Portfolio
 baseurl: "" # the subpath of your site, e.g. /blog
