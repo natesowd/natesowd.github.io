@@ -1,0 +1,162 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out
+                                                          % if you need a4paper
+%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4
+                                                          % paper
+
+\IEEEoverridecommandlockouts                              % This command is only
+                                                          % needed if you want to
+                                                          % use the \thanks command
+\overrideIEEEmargins
+% See the \addtolength command later in the file to balance the column lengths
+% on the last page of the document
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% The following packages can be found on http:\\www.ctan.org
+%\usepackage{graphics} % for pdf, bitmapped graphics files
+%\usepackage{epsfig} % for postscript graphics files
+%\usepackage{mathptmx} % assumes new font selection scheme installed
+%\usepackage{mathptmx} % assumes new font selection scheme installed
+%\usepackage{amsmath} % assumes amsmath package installed
+%\usepackage{amssymb}  % assumes amsmath package installed
+
+\title{\LARGE \bf
+Evaluating PPG Signal Quality Across Skin Tones using Neural Networks and Signal Metrics
+}
+
+%\author{ \parbox{3 in}{\centering Huibert Kwakernaak*
+%         \thanks{*Use the $\backslash$thanks command to put information here}\\
+%         Faculty of Electrical Engineering, Mathematics and Computer Science\\
+%         University of Twente\\
+%         7500 AE Enschede, The Netherlands\\
+%         {\tt\small h.kwakernaak@autsubmit.com}}
+%         \hspace*{ 0.5 in}
+%         \parbox{3 in}{ \centering Pradeep Misra**
+%         \thanks{**The footnote marks may be inserted manually}\\
+%        Department of Electrical Engineering \\
+%         Wright State University\\
+%         Dayton, OH 45435, USA\\
+%         {\tt\small pmisra@cs.wright.edu}}
+%}
+
+\usepackage{authblk}
+
+\author[1]{Jessica Li}
+\author[1]{Nate Sowder}
+\affil[1]{Department of Computer Science, Northwestern University, Evanston, IL}
+
+% \author{Jessica Li$^{1}$ and Nate Sowder$^{1}$ % <-this % stops a space 
+% \thanks{*This work was not supported by any organization}% <-this % stops a space
+% \thanks{$^{1}$H. Kwakernaak is with Faculty of Electrical Engineering, Mathematics and Computer Science,
+%         University of Twente, 7500 AE Enschede, The Netherlands
+%         {\tt\small h.kwakernaak at papercept.net}}%
+% \thanks{$^{2}$P. Misra is with the Department of Electrical Engineering, Wright State University,
+%         Dayton, OH 45435, USA
+%         {\tt\small p.misra at ieee.org}}%
+% }
+
+
+\begin{document}
+
+
+
+\maketitle
+\thispagestyle{empty}
+\pagestyle{empty}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+
+
+
+\end{abstract}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{INTRODUCTION}
+
+Photoplethysmography (PPG) has been rising in popularity as a non-invasive method to measure patients’ heart rate. Additionally, PPG has recently seen novel applications in measuring patient blood pressure \cite{elgendi_photoplethysmography_2024} in a similar non-invasive manner, without need for mechanical cuffs. However, PPG can be prone to noisy signals, because the light refractions it detects can vary with environment and individual \cite{castaneda_review_2018}. In fact, recent literature suggests skin pigmentation can affect PPG reading quality \cite{al-halawani_review_2023}, and that the light wavelength used by the PPG device can also affect reading quality \cite{fallow_influence_2013}. However, studies that have explored the effect of skin pigmentation in PPG quality used dated and subjective measurements of skin tone. These skin tone classifications are prone to errors due to observer bias, lighting conditions, and bias in self-reporting \cite{vasudevan_melanometry_2024}. Thus, this poses a problem for the measurement quality of PPG sensing for people of different skin tones. We focus on evaluating the most effective wavelength or combination of wavelengths for people of different skin tones and providing more insight to skin pigmentation’s effect on PPG reading. To improve on previous research, we propose using measuring tools such as colorimeters to ensure a more robust categorization of skin pigmentation. Specifically, we use a colorimeter that expresses color using CIELAB, which is defined by the International Commission on Illumination. This measurement tool and metric provides a more reliable measurement of skin tone due to the CIELAB color space being designed to represent human color perception and providing an objective quantification of skin pigmentation that is independent of observer bias \cite{ly_research_2020}. We also expand on the current literature by increasing the types of wavelengths that have been tested, including intermediate visible and infrared wavelengths. 
+
+Our study will be performed by recruiting participants of different skin tone and measuring their skin pigmentation in the same environment to ensure consistent lighting and temperature conditions. We plan to use ExtHub, a wearable device that includes red, orange, green, and infrared wavelengths to collect PPG on the participants. The device will be worn on the participant’s right wrist, and data will be collected for 2 minutes for each wavelength while the participant is sitting at rest. We preprocess the raw PPG data and utilize multiple evaluation techniques to assess the quality of the PPG signal, including using statistical signal quality metrics, and employing machine learning models such as convolutional neural networks (CNNs) and long short-term memory networks (LSTMs) trained on an open source dataset with classified good and bad quality PPG signal reads. With consideration of the performance of each model, we will then analyze the frequency of good and bad quality PPG signals across the varied wavelengths for each categorized skin tone.
+
+In successfully determining the appropriate wavelength to use for the specified skin pigmentation category, these insights can be applied to more accurate readings on commercial wearable devices such as smartwatches. Personal wearable device and medical device industries can calibrate their measurements by adjusting wavelengths based on the user’s skin tone which will ultimately reduce measurement errors, reducing the disparity of measurement quality between lighter and darker skin tones. Additionally, with most devices optimized for people with lighter skin tones \cite{bent_investigating_2020}, our study will allow for increased accessibility to quality PPG measurements and less bias in healthcare treatment outcomes.
+
+\section{Related Works}
+Current PPG sensors utilize one or more light-emitting diodes (LEDs) to capture the intensity of non-absorbed light reflected from the tissue (Castaneda, et al.). The most prevalent LED colors are green, red, and yellow, with red being the longest wavelength and green being the shortest wavelength of the three. Studies have determined that light with longer wavelengths will penetrate deeper into the tissue compared to light with shorter wavelengths \cite{fallow_influence_2013}\cite{setchfield_effect_2024}. However, the range of electromagnetic wavelengths have historically been quite limited. Studies which include PPG sensor light wavelength variability have only tested within the range of visible light \cite{al-halawani_review_2023}\cite{fallow_influence_2013}. We seek to expand the current literature by additionally testing on infrared light, as well as expanding on the conditions under which visible light spectrums in PPG sensors have been tested. 
+
+Additionally, researchers have found that darker skin tones were correlated with lower accuracy in biological markers derived from PPG signals \cite{al-halawani_review_2023}\cite{bent_investigating_2020}. To account for this, previous studies have categorized skin pigmentation on scales such as the Fitzpatrick skin type scale (FST) and measured absorption and scattering coefficients with varying wavelengths \cite{setchfield_effect_2024}. Specifically to PPG signals, previous research has also examined the effectiveness of using multiple wavelengths to collect PPG data \cite{ray_review_2023}, however many studies rely on constricting skin pigmentation categorization methods such as FST, which constrains classification to a smaller range of skin tones \cite{okoji_equity_2021}. While such efforts at aligning PPG quality and skin classification are well-intentioned, historical skin classification systems such as the FST are prone to subjectivity and bias, often struggling to classify based on naked-eye observation and self-reporting alone \cite{fitzpatrick_validity_1988}. Our work aims to combine the spirit of previous studies insofar as testing the effectiveness of PPG reading on different skin pigmentations with melanometry, an objective operationalization of skin pigmentation measurement using visible- and near-infrared- electromagnetic waves \cite{vasudevan_melanometry_2024}. 
+
+A similar study conducted by Fallow et al. tested different wavelengths and skin types for measuring PPG, but their research was targeted towards finding suitable wavelengths for signal detection during exercise versus at rest. We will focus more on testing the efficacy of single wavelengths for different categories of skin tone at resting state for participants. Our focus targets the disparity in accuracy of PPG measurement for patients with darker skin tones compared to patients with lighter skin tones.
+
+Machine learning methods have been utilized in the realm of PPG signal processing, with more research focusing on using models to analyze blood pressure, sleep quality, mental health, etc. from PPG signals \cite{nie_review_2024}\cite{gonzalez_benchmark_2023}. Assessment of PPG signal quality has been conducted before, however researchers focused on PPG signals with presence of episodic heart arrhythmia \cite{pereira_deep_2019}, and provided a quality assessment model utilizing heart rate and heart rate variability parameters \cite{naeini_deep_2023}. Therefore, we propose to provide a benchmark assessment of methods in quantifying PPG signal quality, including signal quality index, CNNs, LSTMs, and support vector machines (SVMs).
+
+\section{Methods}
+\subsection{Device}
+We use ExtHub, a wearable bluetooth device that can be strapped on to the forearms or upper arms. The device features a three axis accelerometer, five light emitting diodes (LEDs) as photoplethysmography (PPG) sensors, and an electrocardiogram (ECG) sensor. For this study, we only use the PPG sensors, which can be customized by frequency, integration cycles, sequence repeats, and the gains of two transimpedance amplifier channels. The device has the option to change the light wavelengths used during the measurement period. The wavelengths include, green, orange, red, and infrared, and the electrical current for each wavelength can be changed from the range of 0 to 250 milliamperes (mAs). For our study, we strap on the ExtHub sensors to the anterior forearm, with the placement of the sensor approximately in the middle of the wrist and elbow. We also use a constant sampling frequency of 50 hertz (Hz), 1 integration cycle, 16 sequence repeats, and gains of 20 thousand Ohms for both channels.
+
+\subsection{Participants and Data Collection Procedure}
+Our study was conducted with X participants ages X to X. We aim to recruit participants of different skin tones to provide a diverse cohort because the general goal of the study is to determine which wavelengths provide quality PPG signals for people of various skin tones. We first prompted participants to self-select the closest option to their anterior forearm’s skin tone based on an eleven color palette. Then to obtain a quantitative measurement of skin tone, we photographed the participants’ anterior forearms and used the Trigit web application \cite{tjandra_trigit_2023} to determine the lightness (L*), red/green (a*), and yellow/blue (b*) values of the CIELAB color space. To minimize random error, we performed three repeated measurements of skin tone with three images of the participants’ anterior forearms and averaged the three values. We collected data in a well lit and windowless room to ensure lighting changes did not impact the CIELAB calculation and PPG signal collection. During the data collection period, each participant was instructed to stay seated and to refrain from moving the arm that wore the ExtHub device. We recorded PPG signals using red, green, orange, and infrared wavelengths separately for 30 seconds each with a fixed electrical current of 200 mA. Additionally, we recorded combinations of wavelengths, including only visible light (red, green, orange), green and infrared, and green and red wavelengths.
+
+\subsection{Preprocessing}
+In order to retain the features of good and bad quality PPG signals, we apply minimal preprocessing steps to our raw data. First, the raw signals are segmented into 10 second non-overlapping intervals, and then raw values are scaled between 0 to 1 through min-max scaling. 
+
+\subsection{Signal Quality Assessment}
+We train and evaluate a neural network along with statistical signal quality metrics to compare the types of wavelengths to signal measurement quality for different skin tones. The signal metrics we evaluated on are the Signal Quality Index (SQI), Signal-to-Noise Ratio (SNR), and Power Spectral Density (PSD). We also tested a hybrid neural network consisting of convolutional and long short-term memory layers. 
+
+To train this model, we utilized the open access Brno University of Technology Smartphone PPG Database (BUT PPG) \cite{nemcova_brno_2021}\cite{nemcova_brno_nodate} as the training set, which is comprised of 3,888 10-second 30 Hz recordings of PPGs from 50 subjects of 25 females and 25 males aged 19 to 76 years of age. The researchers measured PPG signals with smartphones while the participants were at rest and were prompted to perform other movements. Then signal quality was annotated by 3 to 5 annotators, where signal quality was considered good (with a binary label of 1) when two out of the three or three out of the five annotators provided a label of ‘good’ and signal quality was considered bad (with a binary label of 0) when the previous condition was not met. Because the signals in the BUT PPG dataset were recorded at a sampling rate of 30 Hz, we resampled the dataset to 50 Hz using Fourier-based interpolation. To normalize the data, we also scaled the raw values with min-max scaling. The model was evaluated on the accuracy, precision, recall, and F1 scores.
+
+Our collected data was then fed through the model to classify signal quality as a binary variable of either good (corresponding to label of 1) or bad (corresponding to label of 0). The proportion of good quality signals to poor quality signals were compared to the scores obtained from the SQI and SNR, in which higher scores correspond to better quality signals, as well as a quality score based on PSD, in which we calculated how much power lied in the 0.5 to 3 Hz range (the expected heart rate range) compared to total power. 
+
+
+\subsection{Potential Limitations}
+It may prove difficult to train a neural network on the BUT PPG dataset and use it for our PPG data collected using ExtHub, due to the systemic discrepancies that may arise from the methods of data collection; specifically, the difference in PPG hardware and the difference in testing environment. We attempt to reduce these discrepancies by normalizing both BUT and ExtHub PPG signals, as well as interpolating the BUT PPG signals up to 50 Hz, the same sampling frequency used by ExtHub. We hope to be able to achieve greater than 90\% accuracy on matching the ground truth label from the BUT dataset; however we realize that the task transfer may prove untenable for the model to overcome. We plan to account for this by assuming, unless proven otherwise, that the model will have similar prediction accuracy on the ExtHub data as it does on the BUT PPG dataset. 
+
+
+
+
+\section{Results}
+We plan to visualize the model’s performance on the training set with a table listing the accuracy, recall, precision, and F1 scores as the columns. In our discussion section, we will talk about the performance of the model and give inference to the performance. Based on the evaluation metrics, we will also discuss if our implemented hybrid model can be used as a reliable signal assessment method. The uncertainty of the model is a direct implication of its performance– the confidence interval for any prediction is equivalent to the model’s overall accuracy. Of course, this picture becomes complicated with no ground-truth labels, in the case of the ExtHub PPG data. This is certainly a limitation because we have no experts to classify the PPG data– we may have to assume that the model will have similar accuracy using data generated with ExtHub as it did on the BUT PPG data. 
+
+We plan to tabulate the signal quality metrics (SQI, SNR, and frequency components of PDS) for use in patient-by-patient comparison. We can interpret the metrics of each patient by comparing their differences– for example, a low SNR score with strong frequency components in PSD can suggest the presence of motion artifacts being detected \cite{lee_motion_2020}. 
+
+We plan to use Principal Component Analysis (PCA) to decompose the collection of metric scores down to a single latent component we can treat as quality. We plan to graph this quality component against skin tone to elucidate any correlations between skin tone and PPG quality. We can estimate error for the PCA by bootstrapping many samples, and taking the 95\% confidence interval from this distribution.  
+
+In order to estimate the statistical significance of skin tone on PPG signal quality, we plan to use a uniform distribution of signal quality over all skin tones– that is, skin tone plays no significant role upon PPG quality. If the distribution skews from this assumption, then we can claim that skin tone has a statistically significant impact on PPG signal quality. Furthermore, we can use the skin tone quantities from the palette and CIELAB color space to further elucidate if there is indeed correlation between skin tone and PPG signal quality. Such a correlation could be supported by a scatter plot of PPG quality against some component of skin tone, and subsequent Pearson’s Correlation or Spearman’s Rank Correlation scores. 
+
+\addtolength{\textheight}{-12cm}   % This command serves to balance the column lengths
+                                  % on the last page of the document manually. It shortens
+                                  % the textheight of the last page by a suitable amount.
+                                  % This command does not take effect until the next page
+                                  % so it should come on the page before the last. Make
+                                  % sure that you do not shorten the textheight too much.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{APPENDIX}
+
+
+\section*{ACKNOWLEDGMENT}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\bibliographystyle{ieeetr}
+\bibliography{citations}
+
+
+
+
+\end{document}
