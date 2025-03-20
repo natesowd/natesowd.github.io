@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Jessica Li" />
+  <meta name="author" content="Nate Sowder" />
+  <title> Evaluating PPG Signal Quality Across Skin Tones using Signal Metrics </title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    div.abstract {
+      margin: 2em 2em 2em 2em;
+      text-align: left;
+      font-size: 85%;
+    }
+    div.abstract-title {
+      font-weight: bold;
+      text-align: center;
+      padding: 0;
+      margin-bottom: 0.5em;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title"> <strong>Evaluating PPG Signal Quality Across Skin
+Tones using Signal Metrics</strong> </h1>
+<p class="author">Jessica Li</p>
+<p class="author">Nate Sowder</p>
+<div class="abstract">
+<div class="abstract-title">Abstract</div>
+<p>In this study, we investigate the relationship between skin
+pigmentation and photoplethysmography (PPG) signal quality by analyzing
+different wavelength combinations in controlled laboratory conditions.
+Identifying optimal wavelengths based on skin pigmentation can
+significantly enhance the accuracy of PPG measurements on wearable
+devices, such as smartwatches. By calibrating devices to account for the
+user’s skin tone, measurement errors may be reduced, particularly
+addressing the disparity in measurement quality often experienced
+between lighter and darker skin tones. Given that most wearable devices
+currently perform better on individuals with lighter skin, as
+highlighted by prior research <span class="citation"
+data-cites="bent_investigating_2020"></span>, we hope to expand upon
+past literature in this area to increase accessibility and reduce bias
+in healthcare outcomes.</p>
+</div>
+</header>
+<h1 id="introduction">INTRODUCTION</h1>
+<p>Photoplethysmography (PPG) has gained popularity as a non-invasive
+method of measuring heart rate in patients. Furthermore, PPG has
+recently seen novel applications in measuring patient blood pressure
+<span class="citation"
+data-cites="elgendi_photoplethysmography_2024"></span> in a similar
+non-invasive manner, without the need for mechanical cuffs. However, PPG
+can be prone to noisy signals, because the light refractions it detects
+can vary with the environment and the individual <span class="citation"
+data-cites="castaneda_review_2018"></span>. In fact, recent literature
+suggests that skin pigmentation can affect the reading quality of PPG
+<span class="citation" data-cites="al-halawani_review_2023"></span>, and
+that the light wavelength used by the PPG device can also affect the
+reading quality <span class="citation"
+data-cites="fallow_influence_2013"></span>. However, studies that have
+explored the effect of skin pigmentation on the quality of PPG used
+dated and subjective measurements of skin tone. These skin tone
+classifications are prone to errors due to observer bias, lighting
+conditions, and bias in self-reporting <span class="citation"
+data-cites="vasudevan_melanometry_2024"></span>. This poses a problem
+for the measurement quality of PPG sensing for people of different skin
+tones. We focus on evaluating the most effective wavelength or
+combination of wavelengths for people of different skin tones and
+providing more information on the effect of skin pigmentation on PPG
+reading. To improve on previous research, we propose using measuring
+tools such as colorimeters to ensure a more robust categorization of
+skin pigmentation. Specifically, we used a colorimeter that expresses
+color in the CIELAB color space defined by the International Commission
+on Illumination. This measurement tool and metric provides a more
+reliable measurement of skin tone due to the CIELAB color space being
+designed to represent human color perception and providing an objective
+quantification of skin pigmentation that is independent of observer bias
+<span class="citation" data-cites="ly_research_2020"></span>. We also
+expand on the current literature by increasing the types of wavelengths
+that have been tested, including intermediate visible and infrared
+wavelengths.</p>
+<p>Our study was performed by recruiting participants of a variety of
+skin tones and measuring their skin pigmentation in a fluorescent-lit
+room at room temperature to ensure consistent lighting and temperature
+conditions. We used ExtHub, a wearable device that includes red, orange,
+green, and infrared wavelengths to collect PPG on the participants. The
+device was worn on the participant’s right wrist, and data was collected
+for each wavelength while the participant is sitting at rest. We
+preprocessed the raw PPG data and utilized statistical evaluation
+techniques to assess the quality of the PPG signal. We used the signal
+quality metrics to split PPG readings into "good" and "bad" quality
+readings. We analyzed the frequency of good and bad quality PPG signals
+across the varied wavelengths for each categorized skin tone in order to
+determine whether there existed a correlation between skin tone and PPG
+reading, and what role wavelength played upon this correlation (if
+any).</p>
+<h1 id="related-works">Related Works</h1>
+<p>Current PPG sensors utilize one or more light-emitting diodes (LEDs)
+to capture the intensity of non-absorbed light reflected from the tissue
+<span class="citation" data-cites="castaneda_review_2018"></span>. The
+most prevalent LED colors are green, red, and yellow, with red being the
+longest wavelength and green being the shortest wavelength of the three.
+Studies have determined that light with longer wavelengths will
+penetrate deeper into the tissue compared to light with shorter
+wavelengths <span class="citation"
+data-cites="fallow_influence_2013"></span><span class="citation"
+data-cites="setchfield_effect_2024"></span>. However, the range of
+electromagnetic wavelengths have historically been quite limited.
+Studies which include PPG sensor light wavelength variability have only
+tested within the range of visible light <span class="citation"
+data-cites="al-halawani_review_2023"></span><span class="citation"
+data-cites="fallow_influence_2013"></span>. We seek to expand the
+current literature by testing on infrared light in addition to visible
+light, and use combinations of wavelengths as well.</p>
+<p>Additionally, researchers have found that darker skin tones were
+correlated with lower accuracy in biological markers derived from PPG
+signals <span class="citation"
+data-cites="al-halawani_review_2023"></span><span class="citation"
+data-cites="bent_investigating_2020"></span>. To account for this,
+previous studies have categorized skin pigmentation on scales such as
+the Fitzpatrick skin type scale (FST) and measured absorption and
+scattering coefficients with varying wavelengths <span class="citation"
+data-cites="setchfield_effect_2024"></span>. Specifically to PPG
+signals, previous research has also examined the effectiveness of using
+multiple wavelengths to collect PPG data <span class="citation"
+data-cites="ray_review_2023"></span>, however many studies rely on
+constricting skin pigmentation categorization methods such as FST, which
+constrains classification to a smaller range of skin tones <span
+class="citation" data-cites="okoji_equity_2021"></span>. While such
+efforts at aligning PPG quality and skin classification are
+well-intentioned, historical skin classification systems such as the FST
+are prone to subjectivity and bias, often struggling to classify based
+on naked-eye observation and self-reporting alone <span class="citation"
+data-cites="fitzpatrick_validity_1988"></span>. Our work aims to combine
+the spirit of previous studies insofar as testing the effectiveness of
+PPG reading on different skin pigmentations with colorimetry as
+supported through the CIELAB color space.</p>
+<h1 id="methods">Methods</h1>
+<p>Our study aims to investigate the effect of PPG signal quality and
+accuracy across different skin tones. We recruited participants with
+diverse skin tones, measured their pigmentation using CIELAB values, and
+collected PPG signals under controlled conditions using multiple
+wavelengths and combinations. Signal quality was evaluated using
+statistical metrics, including signal-to-noise ratio (SNR), entropy, and
+a heart rate deviation score, to determine the impact of skin tone on
+PPG accuracy.</p>
+<h2 id="device">Device</h2>
+<p>We use ExtHub, a wearable bluetooth device that can be strapped on to
+the forearms or upper arms. The device features a three axis
+accelerometer, five light emitting diodes (LEDs) as photoplethysmography
+(PPG) sensors, and an electrocardiogram (ECG) sensor. For this study, we
+only use the PPG sensors, which can be customized by frequency,
+integration cycles, sequence repeats, and the gains of two
+transimpedance amplifier channels. The device has the option to change
+the light wavelengths used during the measurement period. The
+wavelengths include, green, orange, red, and infrared, and the
+electrical current for each wavelength can be changed from the range of
+0 to 250 milliamperes (mAs). For our study, we strap on the ExtHub
+sensors to the anterior forearm, with the placement of the sensor
+approximately in the middle of the wrist and elbow. We also use a
+constant sampling frequency of 50 hertz (Hz), 1 integration cycle, 16
+sequence repeats, and gains of 20 thousand Ohms for both channels.</p>
+<h2 id="participants-and-data-collection-procedure">Participants and
+Data Collection Procedure</h2>
+<p>Our study was conducted with 15 adult participants. We aim to recruit
+participants of different skin tones to provide a diverse cohort because
+the general goal of the study is to determine which wavelengths provide
+quality PPG signals for people of various skin tones. We first prompted
+participants to self-select the closest option to their anterior
+forearm’s skin tone based on an eleven color palette. Then to obtain a
+quantitative measurement of skin tone, we photographed the participants’
+anterior forearms and used the Trigit web application <span
+class="citation" data-cites="tjandra_trigit_2023"></span> to determine
+the lightness (L*), red/green (a*), and yellow/blue (b*) values of the
+CIELAB color space. To minimize random error, we performed three
+repeated measurements of skin tone with three images of the
+participants’ anterior forearms and averaged the three values. We
+collected data in a well lit and windowless room to ensure lighting
+changes did not impact the CIELAB calculation and PPG signal collection.
+During the data collection period, each participant was instructed to
+stay seated and to refrain from moving the arm that wore the ExtHub
+device. We recorded PPG signals using red, green, orange, and infrared
+wavelengths separately for 30 seconds each with a fixed electrical
+current of 100 mA. Additionally, we recorded combinations of
+wavelengths, including only visible light (red, green, orange), green
+and infrared, and green and red wavelengths.</p>
+<h2 id="skin-pigmentation-interpretation">Skin Pigmentation
+Interpretation</h2>
+<figure id="fig:skincolor">
+<img src="images/skincolor.png" />
+<figcaption>X-axis: b* (Higher b* corresponds to greater yellow
+component). Y-axis: L* (Higher L* corresponds to greater perceptual
+lightness. Dashed lines are separators for skin pigmentation
+groups.</figcaption>
+</figure>
+<p>To visualize the distribution of skin pigmentation for our
+participants and group similar skin tones together, we used the
+Individual Topology Angle (ITA), which uses L* and b* values to
+correspond skin color to one of six groups <span class="citation"
+data-cites="ly_research_2020"></span>. <a href="#fig:skincolor"
+data-reference-type="ref" data-reference="fig:skincolor">1</a> shows the
+spread of associated skin tone for the participants.</p>
+<h2 id="preprocessing">Preprocessing</h2>
+<p>In order to retain the features of good and bad quality PPG signals,
+we applied minimal preprocessing steps to our raw data. The raw signals
+for green, red, and orange wavelengths are segmented into 20 second
+non-overlapping intervals. For the green and red, green and infrared,
+and visible light combinations, we align the separate wavelengths onto
+the same time axis with cubic interpolation, normalize the magnitude of
+the signals using the alternating and direct currents, and taking the
+average of the respective signals to achieve the respective
+combination.</p>
+<h2 id="signal-quality-assessment">Signal Quality Assessment</h2>
+<p>The signal metrics we evaluated are Signal Noise Ratio (SNR),
+Kurtosis, Shannon Entropy (SE), and a heart rate variability score. We
+selected these metrics because PPG signals are primarily used to measure
+heart rate. To accurately measure heart rate, a high-quality signal
+should exhibit consistent pulse waves with a distinct pulse peak.</p>
+<p>We calculate SNR with respect to the signal power and noise power. To
+determine a noisy signal, we apply a Butterworth band pass filter with
+lower and upper thresholds of 0.7 and 3.5 on the raw signal and
+calculate the difference between the filtered signal and the raw signal.
+Kurtosis is calculated using Pearson’s definition. The probability
+distribution function needed for SE is calculated by creating a
+histogram of 10 bins to find the probability distribution of the signal,
+then entropy is calculated with the probability distribution function.
+The heart rate variability score is a score that determines how much the
+estimated heart rate for one wavelength type varies compared to the
+average heart rate for the participant, with 0 signifying an estimated
+heart rate further away from the average and 1 signifying an estimated
+heart rate with the same value as the average. To determine the
+estimated heart rate, we use the HeartPy library and extract the beats
+per minute from the processed signal <span class="citation"
+data-cites="gent_analysing_2018"></span>. Average heart rate is recorded
+by averaging the estimated heart rates across all wavelengths for each
+participant. We calculate a penalty score that represents how much each
+estimated heart rate deviates from the average heart rate. We observe
+some flatlining PPG signals, notably in the infrared and red
+wavelengths. The metrics for these signals are null values.</p>
+<p>Signal quality is determined as a binary indicator, with 0 indicating
+a bad signal and 1 indicating a good signal. Given the previously
+calculated metrics, we assign a threshold to each metric: the
+signal-to-noise ratio must be greater than 0, which indicates the signal
+is stronger than the relative noise; the kurtosis is be less than or
+equal to 3.5, which was determined as a suitable threshold in previous
+literature <span class="citation"
+data-cites="selvaraj_statistical_2011"></span>; the entropy must be
+greater than or equal to 0.8, also following previous literature <span
+class="citation" data-cites="selvaraj_statistical_2011"></span>; and the
+penalty score must be greater than or equal to 0.67, which corresponds
+to being within one standard deviation of the mean average heart rate.
+To classify a signal as good, at least three out of the four conditions
+must be met, otherwise the signal is classified as bad. For null value
+metrics, we automatically classify the signal as a bad signal.</p>
+<h1 id="results">Results</h1>
+<p>Figures 2 and 3 illustrate the distribution of skin pigmentation
+across various PPG wavelengths, employing both CIELab-measured values
+and self-reported skin pigmentation scales. Each figure presents these
+distributions separately, split on the quality indicator of the PPG
+signal.</p>
+<p>Table I presents a summary of the aggregate mean scores and their
+associated standard deviations for each evaluated wavelength across our
+chosen PPG signal quality metrics. </p>
+<p>Table II details the Spearman correlation coefficients and p-values
+between skin pigmentation measurements and our PPG signal quality
+metrics. The table is split by skin pigmentation measurement
+technique. </p>
+<div class="table*">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th colspan="2" style="text-align: center;">SNR</th>
+<th colspan="2" style="text-align: center;">Kurtosis</th>
+<th colspan="2" style="text-align: center;">Shannon Entropy</th>
+<th colspan="2" style="text-align: center;">Heart Rate Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Wavelength Type</td>
+<td style="text-align: center;">M</td>
+<td style="text-align: center;">SD</td>
+<td style="text-align: center;">M</td>
+<td style="text-align: center;">SD</td>
+<td style="text-align: center;">M</td>
+<td style="text-align: center;">SD</td>
+<td style="text-align: center;">M</td>
+<td style="text-align: center;">SD</td>
+</tr>
+<tr>
+<td style="text-align: left;">Green</td>
+<td style="text-align: center;">-9<span
+class="math inline">×10<sup>−6</sup></span></td>
+<td style="text-align: center;">7.8<span
+class="math inline">×10<sup>−5</sup></span></td>
+<td style="text-align: center;">2.326</td>
+<td style="text-align: center;">0.717</td>
+<td style="text-align: center;">2.099</td>
+<td style="text-align: center;">0.115</td>
+<td style="text-align: center;">0.757</td>
+<td style="text-align: center;">0.114</td>
+</tr>
+<tr>
+<td style="text-align: left;">Orange</td>
+<td style="text-align: center;">-4<span
+class="math inline">×10<sup>−6</sup></span></td>
+<td style="text-align: center;">1.24<span
+class="math inline">×10<sup>−4</sup></span></td>
+<td style="text-align: center;">2.812</td>
+<td style="text-align: center;">1.139</td>
+<td style="text-align: center;">2.035</td>
+<td style="text-align: center;">0.159</td>
+<td style="text-align: center;">0.717</td>
+<td style="text-align: center;">0.203</td>
+</tr>
+<tr>
+<td style="text-align: left;">Red</td>
+<td style="text-align: center;">-5.6<span
+class="math inline">×10<sup>−5</sup></span></td>
+<td style="text-align: center;">1.94<span
+class="math inline">×10<sup>−4</sup></span></td>
+<td style="text-align: center;">2.673</td>
+<td style="text-align: center;">1.269</td>
+<td style="text-align: center;">2.021</td>
+<td style="text-align: center;">0.188</td>
+<td style="text-align: center;">0.715</td>
+<td style="text-align: center;">0.227</td>
+</tr>
+<tr>
+<td style="text-align: left;">Infrared</td>
+<td style="text-align: center;">-1.2<span
+class="math inline">×10<sup>−5</sup></span></td>
+<td style="text-align: center;">3.4<span
+class="math inline">×10<sup>−5</sup></span></td>
+<td style="text-align: center;">2.629</td>
+<td style="text-align: center;">0.336</td>
+<td style="text-align: center;">1.974</td>
+<td style="text-align: center;">0.027</td>
+<td style="text-align: center;">0.797</td>
+<td style="text-align: center;">0.145</td>
+</tr>
+<tr>
+<td style="text-align: left;">Green and Red</td>
+<td style="text-align: center;">-2.7<span
+class="math inline">×10<sup>−5</sup></span></td>
+<td style="text-align: center;">3.2<span
+class="math inline">×10<sup>−5</sup></span></td>
+<td style="text-align: center;">2.308</td>
+<td style="text-align: center;">0.696</td>
+<td style="text-align: center;">2.059</td>
+<td style="text-align: center;">0.093</td>
+<td style="text-align: center;">0.642</td>
+<td style="text-align: center;">0.212</td>
+</tr>
+<tr>
+<td style="text-align: left;">Green and Infrared</td>
+<td style="text-align: center;">-1.5<span
+class="math inline">×10<sup>−5</sup></span></td>
+<td style="text-align: center;">4.0<span
+class="math inline">×10<sup>−5</sup></span></td>
+<td style="text-align: center;">3.882</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">1.786</td>
+<td style="text-align: center;">0.584</td>
+<td style="text-align: center;">0.777</td>
+<td style="text-align: center;">0.226</td>
+</tr>
+<tr>
+<td style="text-align: left;">Visible Light</td>
+<td style="text-align: center;">1.36<span
+class="math inline">×10<sup>−4</sup></span></td>
+<td style="text-align: center;">3.93<span
+class="math inline">×10<sup>−4</sup></span></td>
+<td style="text-align: center;">2.805</td>
+<td style="text-align: center;">0.632</td>
+<td style="text-align: center;">2.075</td>
+<td style="text-align: center;">0.095</td>
+<td style="text-align: center;">0.737</td>
+<td style="text-align: center;">0.184</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table*">
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Skin Tone Metric</th>
+<th style="text-align: left;">Quality Metric</th>
+<th style="text-align: right;">Spearman Correlation</th>
+<th style="text-align: right;">p-value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Individual Topology Angle</td>
+<td style="text-align: left;">SNR</td>
+<td style="text-align: right;">0.04653</td>
+<td style="text-align: right;">0.72638</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Kurtosis</td>
+<td style="text-align: right;">0.04383</td>
+<td style="text-align: right;">0.74171</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Shannon Entropy</td>
+<td style="text-align: right;">-0.07458</td>
+<td style="text-align: right;">0.57452</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Penalty Score</td>
+<td style="text-align: right;">-0.07632</td>
+<td style="text-align: right;">0.56564</td>
+</tr>
+<tr>
+<td style="text-align: left;">Self-Reported Skin Tone</td>
+<td style="text-align: left;">SNR</td>
+<td style="text-align: right;">0.00173</td>
+<td style="text-align: right;">0.98960</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Kurtosis</td>
+<td style="text-align: right;">-0.05074</td>
+<td style="text-align: right;">0.70270</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Shannon Entropy</td>
+<td style="text-align: right;">0.02920</td>
+<td style="text-align: right;">0.82620</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Penalty Score</td>
+<td style="text-align: right;">-0.09799</td>
+<td style="text-align: right;">0.46031</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure id="fig:cielab_hist">
+<img src="images/cielab_hist.png" />
+<figcaption>Signal Quality by Wavelength, stratified by skin tone in the
+CIELab color space.</figcaption>
+</figure>
+<figure id="fig:selfreport_hist">
+<img src="images/selfreport_hist.png" />
+<figcaption>Signal Quality by Wavelength, stratified by skin tone using
+self report on the Fitzpatrick Scale.</figcaption>
+</figure>
+<h1 id="discussion">Discussion</h1>
+<p>Our results suggest that the wavelength type used in
+photoplethysmography (PPG) significantly influences signal quality,
+while skin pigmentation shows minimal correlation with signal quality
+across various metrics. This finding contrasts with existing literature,
+which has often reported a noticeable impact of skin pigmentation on
+pulse oximetry accuracy and optical properties relevant to medical
+technologies <span class="citation"
+data-cites="al-halawani_review_2023"></span><span class="citation"
+data-cites="setchfield_effect_2024"></span>. While this difference could
+be due to many factors, we want to stress the high variability exhibited
+by PPG devices, as also reported by Bent, et al. <span class="citation"
+data-cites="bent_investigating_2020"></span>. </p>
+<p>The analysis clearly shows distinct variations in PPG quality among
+wavelength types. Specifically, wavelength combinations involving
+visible light—particularly the "Green and Red" and "Visible Light"
+combinations—yielded consistently higher quality signals compared to
+infrared wavelengths. The poor performance observed in infrared
+wavelengths primarily resulted from flatlined signals, indicating
+practical limitations in utilizing infrared alone for reliable PPG
+measurements at rest. This observation contrasts somewhat with previous
+literature that has broadly supported infrared for deep tissue
+penetration and low interference [4] [9]. However, our findings
+underscore the practical limitations and variability of infrared-based
+readings in certain contexts, possibly due to differences in
+environmental control, measurement setups, or the specific infrared
+wavelengths and sensor configurations used.</p>
+<p>The minimal correlation between skin pigmentation and signal quality
+metrics suggests that, while skin pigmentation could theoretically
+affect optical properties, we did not establish a strong correlation in
+our findings under controlled environmental conditions. Our utilization
+of precise colorimetry tools like CIELab, as opposed to subjective
+scales, contributes robustness to our observations and addresses
+methodological gaps in previous research, where subjective assessments
+may have contributed to variability and inconclusive results
+[10][11].</p>
+<p>Our study contributes to the ongoing conversation regarding the
+relationship between skin pigmentation and PPG signal quality by
+providing empirical data from controlled laboratory conditions and
+precise measurement methods. The insights derived here resonate with
+recent recommendations advocating for standardized and objective
+measurement approaches in skin pigmentation assessment [5].</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>One key limitation of our study was the relatively small sample size,
+which may have contributed to the high variability observed in the PPG
+quality scores. This variability likely influenced our inability to find
+statistically significant correlations between skin pigmentation and PPG
+signal quality metrics. Future research should incorporate a larger,
+more diverse participant sample to enhance statistical power and
+reliability of conclusions.</p>
+<p>Additionally, while the CIELab measurement technique provided
+objective data on skin pigmentation, it has inherent limitations, such
+as sensitivity to lighting conditions and measurement angles.
+Incorporating more precise and specialized melonometry tools, as
+suggested by Vasudevan et al. <span class="citation"
+data-cites="vasudevan_melanometry_2024"></span>, could improve the
+accuracy and consistency of skin pigmentation measurements in subsequent
+studies, thus potentially clarifying any existing relationships between
+skin pigmentation and PPG signal quality.</p>
+</body>
+</html>
